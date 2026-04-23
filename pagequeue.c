@@ -21,7 +21,7 @@ PageQueue *pqInit(unsigned int maxSize) {
     PageQueue* pq = malloc(sizeof(PageQueue));
     pq->head = NULL;
     pq->tail = NULL;
-    pq->size = NULL;
+    pq->size = 0;
     pq->maxSize = maxSize;
     return pq;
 }
@@ -42,46 +42,77 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
         //     it at the tail (most recently used).
         //   - Return d.
         if(tmp->pageNum == pageNum){
-            //delete helper function?
-            free(tmp);git add
+            //Find it first
+            PqNode* change = pq->tail;
+
+            //At tail of pq
+            if (pq->tail->pageNum == pageNum)
+            {
+                //Hit is already at the end of the pq
+                return i; 
+            }
+            
+            for(int j = 0; j<pq->size-1; j++){
+                change = change->prev;
+            }
+
+            //Re-direct to Tail
+            //If found at the head
+            if (pq->head->pageNum == pageNum)
+            {
+                pq->tail = change;
+                pq->tail->next = NULL;
+                change = pq->head->next;
+                pq->head = change;
+                pq->head->prev = NULL;
+            }
+
+            //If found in the middle
+            else{
+                change->next = NULL;
+                change->prev = pq->tail;
+                pq->tail->next = change;
+                pq->tail = change; 
+            }           
+
             return i;
         }
-        
-        // MISS path (page not found):
-        //   - Allocate a new node for pageNum and insert it at the tail.
-        //   - If size now exceeds maxSize, evict the head node (free it).
-        //   - Return -1.
-        else{
-            PqNode* newNode = pageNum;
-            newNode->next = NULL;
-            if(pq->head == NULL){
-                newNode->prev = NULL;
-                pq->head = newNode;
-                pq->tail = newNode;
-            }
-            else{
-                newNode->prev = pq->tail;
-                pq->tail->next = newNode;
-                pq->tail = newNode;
-            }
 
-            pq->size++;
-            if(pq->size > pq->maxSize){
-                //delete the head
-                pq->head = tmp->next;
-
-                pq->head->prev = NULL;
-                
-                pq->size--;
-
-                free(tmp);
-                return -1;
-            }
-
-        }
         tmp = tmp->next;
         i++;
     }
+        
+    // MISS path (page not found):
+    //   - Allocate a new node for pageNum and insert it at the tail.
+    //   - If size now exceeds maxSize, evict the head node (free it).
+    //   - Return -1.
+    PqNode* newNode = malloc(sizeof(PqNode));
+    newNode->pageNum = pageNum;
+    newNode->next = NULL;
+    if(pq->head == NULL){
+        newNode->prev = NULL;
+        pq->head = newNode;
+        pq->tail = newNode;
+    }
+    else{
+        newNode->prev = pq->tail;
+        pq->tail->next = newNode;
+        pq->tail = newNode;
+    }
+
+    pq->size++;
+        
+    if(pq->size > pq->maxSize){
+        //delete the head
+        pq->head = tmp->next;
+
+        pq->head->prev = NULL;
+                
+        pq->size--;
+    }    
+
+    free(tmp);
+    return -1;       
 }
 
 /**
@@ -90,6 +121,15 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
 void pqFree(PageQueue *pq) {
     // TODO: Walk from head to tail, free each node, then free
     //       the PageQueue struct itself.
+    PqNode* tmp = pq->head;
+    while(tmp != NULL){
+        pq->head = tmp->next;
+        tmp->next = NULL;
+        free(tmp);
+        tmp = pq->head;
+    }
+    pq->tail = NULL;
+    free(pq);
 }
 
 /**
@@ -99,4 +139,9 @@ void pqPrint(PageQueue *pq) {
     // TODO (optional): Print each page number from head to tail,
     //                  marking which is head and which is tail.
     //                  Useful for desk-checking small traces.
+    PqNode* current = pq->head;
+    while(current != NULL){
+        printf("%lu\n", current->pageNum);
+        current = current->next;
+    }
 }
