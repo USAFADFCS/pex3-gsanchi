@@ -78,7 +78,7 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
             return i;
         }
 
-        tmp = tmp->next;
+        tmp = tmp->prev;
         i++;
     }
         
@@ -116,7 +116,7 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
         pq->head->prev = NULL;
                 
         pq->size--;
-        
+
         free(headTmp);
     }    
 

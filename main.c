@@ -9,7 +9,9 @@
  * Documentation: I used my doubly linked list code from CS220.
  * I also used this website to remember how to calloc https://
  * www.geeksforgeeks.org/c/dynamic-memory-allocation-in-c-using
- * -malloc-calloc-free-and-realloc/
+ * -malloc-calloc-free-and-realloc/. I also used this website 
+ * to fix issues with github https://www.codestudy.net/blog/
+ * rejected-master-master-fetch-first/.
  * =========================================================== */
 #include <stdio.h>
 #include <stdlib.h>
