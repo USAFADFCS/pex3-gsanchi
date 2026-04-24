@@ -43,7 +43,7 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
         //   - Return d.
         if(tmp->pageNum == pageNum){
             //Find it first
-            PqNode* change = pq->tail;
+            //PqNode* change = pq->tail;
 
             //At tail of pq
             if (pq->tail->pageNum == pageNum)
@@ -52,28 +52,28 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
                 return i; 
             }
             
-            for(int j = 0; j<pq->size-1; j++){
-                change = change->prev;
-            }
+            // for(int j = 0; j<pq->size-1; j++){
+            //     change = change->prev;
+            // }
 
             //Re-direct to Tail
             //If found at the head
             if (pq->head->pageNum == pageNum)
             {
-                pq->tail = change;
-                pq->tail->next = NULL;
-                change = pq->head->next;
-                pq->head = change;
+                pq->head = tmp->next;
                 pq->head->prev = NULL;
             }
 
             //If found in the middle
             else{
-                change->next = NULL;
-                change->prev = pq->tail;
-                pq->tail->next = change;
-                pq->tail = change; 
-            }           
+                tmp->prev->next = tmp->next;
+                tmp->next->prev = tmp->prev;
+            }     
+            
+            tmp->prev = pq->tail;
+            pq->tail->next = tmp;
+            pq->tail = tmp;
+            tmp->next = NULL;
 
             return i;
         }
@@ -89,11 +89,14 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
     PqNode* newNode = malloc(sizeof(PqNode));
     newNode->pageNum = pageNum;
     newNode->next = NULL;
+    
+    //Check if the list is empty    
     if(pq->head == NULL){
         newNode->prev = NULL;
         pq->head = newNode;
         pq->tail = newNode;
     }
+
     else{
         newNode->prev = pq->tail;
         pq->tail->next = newNode;
@@ -103,15 +106,20 @@ long pqAccess(PageQueue *pq, unsigned long pageNum) {
     pq->size++;
         
     if(pq->size > pq->maxSize){
-        //delete the head
-        pq->head = tmp->next;
+        //Made a holder for head so it does not seg fault
+        PqNode* headTmp = malloc(sizeof(PqNode));
+        headTmp = pq->head;
+
+        //Delete head
+        pq->head = pq->head->next;
 
         pq->head->prev = NULL;
                 
         pq->size--;
+        
+        free(headTmp);
     }    
 
-    free(tmp);
     return -1;       
 }
 

@@ -37,6 +37,8 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
+    fprintf(stdin, "helo");
+
     // Parse and validate frame size selection
     int menuOption = atoi(argv[2]);
     if (menuOption < 1 || menuOption > 4) {
@@ -67,15 +69,18 @@ int main(int argc, char **argv) {
             break;
     }
 
+    
     fprintf(stderr, "Frame size option %d: %d offset bits, %d max frames, algorithm=LRU\n",
             menuOption, offsetBits, maxFrames);
+
+    
 
     // TODO: Create your PageQueue (call pqInit, which returns a pointer)
     //       and allocate the faults[] array.  faults[f] will hold the
     //       total number of page faults that occur when f frames are
     //       available.  Use calloc so all entries start at zero.
     PageQueue *pq = pqInit(maxFrames);
-    long *faults = (long *)calloc(pq->maxSize, sizeof(long));
+    long *faults = (long *)calloc(maxFrames+1, sizeof(long));
 
     // Process each memory access from the trace file
     while (!feof(ifp)) {
